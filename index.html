@@ -3383,47 +3383,16 @@
   
  // ==================== AFTER all vocabulary objects are defined ====================
 
-// 获取单词列表 (ONLY ONCE, at the end after all data)
+let currentWordObj = null;
+
+// Get word lists
 const nounWords = Object.keys(nouns);
 const verbWords = Object.keys(verbs);
 const adjWords = Object.keys(adjectives);
 const prepWords = Object.keys(prepositions);
 
-// 更新统计显示
-document.getElementById("nounCount").innerText = nounWords.length;
-document.getElementById("verbCount").innerText = verbWords.length;
-document.getElementById("adjCount").innerText = adjWords.length;
-document.getElementById("prepCount").innerText = prepWords.length;
+  
 
-// getRandomWord function must come AFTER these arrays are defined
-function getRandomWord(type) {
-  let word, data;
-  if(type === "noun") { 
-    if(nounWords.length === 0) return { word: "loading", chn: "加载中", type: "noun", exampleEn: "", exampleZh: "" };
-    word = nounWords[Math.floor(Math.random() * nounWords.length)]; 
-    data = nouns[word]; 
-  }
-  else if(type === "verb") { 
-    if(verbWords.length === 0) return { word: "loading", chn: "加载中", type: "verb", exampleEn: "", exampleZh: "" };
-    word = verbWords[Math.floor(Math.random() * verbWords.length)]; 
-    data = verbs[word]; 
-  }
-  else if(type === "adj") { 
-    if(adjWords.length === 0) return { word: "loading", chn: "加载中", type: "adj", exampleEn: "", exampleZh: "" };
-    word = adjWords[Math.floor(Math.random() * adjWords.length)]; 
-    data = adjectives[word]; 
-  }
-  else { 
-    if(prepWords.length === 0) return { word: "loading", chn: "加载中", type: "prep", exampleEn: "", exampleZh: "" };
-    word = prepWords[Math.floor(Math.random() * prepWords.length)]; 
-    data = prepositions[word]; 
-  }
-  return { word, chn: data.chn, type, exampleEn: data.en, exampleZh: data.zh };
-}
-
-// Initialize the first word
-let currentWordObj = getRandomWord("noun");
-updateDisplay();
 
  // ==================== QUIZ SYSTEM ====================
   
@@ -4007,14 +3976,88 @@ updateDisplay();
     }
   });
   
-  const vowelDiv = document.getElementById("vowelsContainer");
+let currentWordObj = null;
+  
+updateDisplay();
+
+// Function to update the display with current word
+function updateDisplay() {
+  if (!currentWordObj) return;
+  
+  document.getElementById("displayWord").innerText = currentWordObj.word;
+  document.getElementById("displayChinese").innerHTML = currentWordObj.chn;
+  document.getElementById("exampleSentenceEn").innerHTML = currentWordObj.exampleEn;
+  document.getElementById("exampleSentenceZh").innerHTML = currentWordObj.exampleZh;
+}
+
+// Get random word by type
+function getRandomWordByType(type) {
+  return getRandomWord(type);
+}
+
+// Set up word explorer event listeners
+document.getElementById("randomWordBtn").addEventListener("click", () => {
+  const type = document.getElementById("wordTypeSelect").value;
+  currentWordObj = getRandomWord(type);
+  updateDisplay();
+});
+
+document.getElementById("newWordBtn").addEventListener("click", () => {
+  const type = document.getElementById("wordTypeSelect").value;
+  currentWordObj = getRandomWord(type);
+  updateDisplay();
+});
+
+// Handle word type selection change
+document.getElementById("wordTypeSelect").addEventListener("change", (e) => {
+  currentWordObj = getRandomWord(e.target.value);
+  updateDisplay();
+});
+
+// Speech synthesis functions
+function speakText(text, lang = 'en-US') {
+  if (!window.speechSynthesis) {
+    alert("您的浏览器不支持语音合成功能");
+    return;
+  }
+  
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = lang;
+  utterance.rate = 0.9;
+  utterance.pitch = 1;
+  
+  window.speechSynthesis.cancel(); // Cancel any ongoing speech
+  window.speechSynthesis.speak(utterance);
+}
+
+// Speak current word
+document.getElementById("speakBtn").addEventListener("click", () => {
+  if (currentWordObj && currentWordObj.word) {
+    speakText(currentWordObj.word, 'en-US');
+  }
+});
+
+// Speak example sentence
+document.getElementById("speakSentenceBtn").addEventListener("click", () => {
+  if (currentWordObj && currentWordObj.exampleEn) {
+    speakText(currentWordObj.exampleEn, 'en-US');
+  }
+});
+
+// Make sure the vowel video is added correctly
+const vowelDiv = document.getElementById("vowelsContainer");
+if (vowelDiv && vowelDiv.children.length === 0) {
   const vCard = document.createElement("a");
   vCard.className = "video-card";
   vCard.href = "https://youtube.com/shorts/jKSI_FPeTzQ";
   vCard.target = "_blank";
   vCard.innerHTML = `<i class="fas fa-play-circle" style="font-size:2rem;color:#1F6E8C;"></i><div><strong>🎯 一个口诀搞定90%单词拼读</strong><br><small>英语雪梨老师</small></div>`;
   vowelDiv.appendChild(vCard);
-  
+}
+
+// Make sure songs are added
+const songContainer = document.getElementById("songsContainer");
+if (songContainer && songContainer.children.length === 0) {
   const songs = [
     { name: "🌞 You Are My Sunshine", url: "https://youtube.com/shorts/raf_VS7fBP4" },
     { name: "🌿 Scarborough Fair", url: "https://youtube.com/shorts/oEtU-ppq_ug" },
@@ -4023,6 +4066,32 @@ updateDisplay();
     { name: "🎤 Take Me To Your Heart", url: "https://youtube.com/shorts/djXBVVlZMqo" },
     { name: "✉️ Right Here Waiting", url: "https://youtube.com/shorts/GeKuzNnRdz8" }
   ];
+  
+  songs.forEach(s => {
+    let a = document.createElement("a");
+    a.className = "song-card";
+    a.href = s.url;
+    a.target = "_blank";
+    a.innerHTML = `<i class="fab fa-youtube"></i><div><strong>${s.name}</strong></div>`;
+    songContainer.appendChild(a);
+  });
+}
+
+// Initialize everything when page loads
+document.addEventListener("DOMContentLoaded", () => {
+  // Set initial word
+  currentWordObj = getRandomWord("noun");
+  updateDisplay();
+  
+  // Initialize quiz
+  if (quizBank && quizBank.length > 0) {
+    loadQuiz(0);
+  }
+});
+
+  
+
+  
   const songContainer = document.getElementById("songsContainer");
   songs.forEach(s => {
     let a = document.createElement("a");
