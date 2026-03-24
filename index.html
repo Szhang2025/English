@@ -3383,44 +3383,6 @@
   
  // ==================== AFTER all vocabulary objects are defined ====================
 
-// 获取单词列表 (ONLY ONCE, at the end after all data)
-const nounWords = Object.keys(nouns);
-const verbWords = Object.keys(verbs);
-const adjWords = Object.keys(adjectives);
-const prepWords = Object.keys(prepositions);
-
-// 更新统计显示
-document.getElementById("nounCount").innerText = nounWords.length;
-document.getElementById("verbCount").innerText = verbWords.length;
-document.getElementById("adjCount").innerText = adjWords.length;
-document.getElementById("prepCount").innerText = prepWords.length;
-
-// getRandomWord function must come AFTER these arrays are defined
-function getRandomWord(type) {
-  let word, data;
-  if(type === "noun") { 
-    if(nounWords.length === 0) return { word: "loading", chn: "加载中", type: "noun", exampleEn: "", exampleZh: "" };
-    word = nounWords[Math.floor(Math.random() * nounWords.length)]; 
-    data = nouns[word]; 
-  }
-  else if(type === "verb") { 
-    if(verbWords.length === 0) return { word: "loading", chn: "加载中", type: "verb", exampleEn: "", exampleZh: "" };
-    word = verbWords[Math.floor(Math.random() * verbWords.length)]; 
-    data = verbs[word]; 
-  }
-  else if(type === "adj") { 
-    if(adjWords.length === 0) return { word: "loading", chn: "加载中", type: "adj", exampleEn: "", exampleZh: "" };
-    word = adjWords[Math.floor(Math.random() * adjWords.length)]; 
-    data = adjectives[word]; 
-  }
-  else { 
-    if(prepWords.length === 0) return { word: "loading", chn: "加载中", type: "prep", exampleEn: "", exampleZh: "" };
-    word = prepWords[Math.floor(Math.random() * prepWords.length)]; 
-    data = prepositions[word]; 
-  }
-  return { word, chn: data.chn, type, exampleEn: data.en, exampleZh: data.zh };
-}
-
 // Initialize the first word
 let currentWordObj = getRandomWord("noun");
 updateDisplay();
