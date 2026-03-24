@@ -4001,42 +4001,7 @@
   
   updateDisplay();
 
-// Initialization
-let currentQuizWord = "";
 
-function startQuiz() {
-    const keys = Object.keys(nouns); // Or verbs, depending on your choice
-    const randomKey = keys[Math.floor(Math.random() * keys.length)];
-    const wordData = nouns[randomKey];
-    
-    currentQuizWord = randomKey;
-    
-    // Create a blank in the sentence
-    const displaySentence = wordData.en.replace(new RegExp(randomKey, 'gi'), "______");
-    document.getElementById('quizQuestionDisplay').innerText = displaySentence;
-    document.getElementById('quizFeedback').innerText = "";
-    document.getElementById('quizAnswerInput').value = "";
-}
-
-// Event Listeners
-document.getElementById('submitQuizBtn').addEventListener('click', () => {
-    const userAns = document.getElementById('quizAnswerInput').value.trim().toLowerCase();
-    const feedback = document.getElementById('quizFeedback');
-    
-    if (userAns === currentQuizWord.toLowerCase()) {
-        feedback.innerText = "Correct! ✨";
-        feedback.style.color = "green";
-    } else {
-        feedback.innerText = `Wrong. The answer was: ${currentQuizWord}`;
-        feedback.style.color = "red";
-    }
-});
-
-document.getElementById('nextQuizBtn').addEventListener('click', startQuiz);
-
-// Run once on load
-startQuiz();
-  
 </script>
 </body>
 </html>
