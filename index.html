@@ -3953,7 +3953,7 @@
 { text: "She ______ the product online.", correct: ["ordered"], hint: "订购", zh: "她在网上订购了产品。" },
 { text: "He ______ the discount code.", correct: ["entered"], hint: "输入", zh: "他输入了折扣码。" }  
 ];
-  for(let i=0;i<200;i++) quizBank.push({ ...quizData[i % quizData.length], id: i });
+  for(let i=0;i<quizData.length;i++) quizBank.push({ ...quizData[i], id: i });
   
   let currentQuiz = quizBank[0];
   let currentWordObj = getRandomWord("noun");
