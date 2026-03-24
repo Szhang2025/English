@@ -3401,9 +3401,11 @@
     else { word = prepWords[Math.floor(Math.random() * prepWords.length)]; data = prepositions[word]; }
     return { word, chn: data.chn, type, exampleEn: data.en, exampleZh: data.zh };
   }
+
+ // ==================== QUIZ SYSTEM ====================
   
+  // 1. Define quiz data
   // 测验题库
-  const quizBank = [];
   const quizData = [
   // Set 1: Body parts and injuries (1-20)
   { text: "I ______ my tongue while eating.", correct: ["bit"], hint: "bite的过去式", zh: "我吃饭时咬到了舌头。" },
@@ -3936,28 +3938,23 @@
 { text: "She ______ the product online.", correct: ["ordered"], hint: "订购", zh: "她在网上订购了产品。" },
 { text: "He ______ the discount code.", correct: ["entered"], hint: "输入", zh: "他输入了折扣码。" }  
 ];
-  for(let i=0;i<quizData.length;i++) quizBank.push({ ...quizData[i], id: i });
+
   
-  let currentQuiz = quizBank[0];
-  let currentWordObj = getRandomWord("noun");
+  // 2. Create quizBank (empty array)
+  const quizBank = [];
   
-  function updateDisplay() {
-    document.getElementById("displayWord").innerText = currentWordObj.word;
-    document.getElementById("displayChinese").innerHTML = `🇨🇳 ${currentWordObj.chn}`;
-    document.getElementById("exampleSentenceEn").innerHTML = currentWordObj.exampleEn;
-    document.getElementById("exampleSentenceZh").innerHTML = currentWordObj.exampleZh;
+  // 3. Populate quizBank (run this before anything else)
+  for(let i = 0; i < quizData.length; i++) {
+    quizBank.push({ ...quizData[i], id: i });
   }
   
-  function speakWord() { let u = new SpeechSynthesisUtterance(currentWordObj.word); u.lang = "en-US"; speechSynthesis.cancel(); speechSynthesis.speak(u); }
-  function speakSentence() { let u = new SpeechSynthesisUtterance(currentWordObj.exampleEn); u.lang = "en-US"; speechSynthesis.cancel(); speechSynthesis.speak(u); }
+  // 4. Now declare variables that depend on quizBank
+  let currentQuiz = quizBank[0];
+  let quizIdx = 0;
   
-  document.getElementById("wordTypeSelect").addEventListener("change", (e) => { currentWordObj = getRandomWord(e.target.value); updateDisplay(); });
-  document.getElementById("randomWordBtn").addEventListener("click", () => { let sel = document.getElementById("wordTypeSelect").value; currentWordObj = getRandomWord(sel); updateDisplay(); });
-  document.getElementById("newWordBtn").addEventListener("click", () => { let sel = document.getElementById("wordTypeSelect").value; currentWordObj = getRandomWord(sel); updateDisplay(); });
-  document.getElementById("speakBtn").addEventListener("click", speakWord);
-  document.getElementById("speakSentenceBtn").addEventListener("click", speakSentence);
-  
+  // 5. Define loadQuiz function
   function loadQuiz(idx) {
+    if (!quizBank.length) return;  // Safety check
     currentQuiz = quizBank[idx % quizBank.length];
     document.getElementById("quizQuestionDisplay").innerHTML = currentQuiz.text;
     document.getElementById("quizAnswerInput").value = "";
@@ -3965,13 +3962,26 @@
     document.getElementById("possibleAnswersDisplay").innerHTML = "";
     document.getElementById("quizHintArea").innerHTML = `💡 ${currentQuiz.hint} | 中文: ${currentQuiz.zh}`;
   }
-  let quizIdx = 0; loadQuiz(0);
-  document.getElementById("nextQuizBtn").addEventListener("click", () => { quizIdx = (quizIdx + 1) % quizBank.length; loadQuiz(quizIdx); });
+  
+  // 6. Initialize the first quiz (NOW it works because quizBank is populated)
+  loadQuiz(0);
+  
+  // 7. Event listeners
+  document.getElementById("nextQuizBtn").addEventListener("click", () => { 
+    quizIdx = (quizIdx + 1) % quizBank.length; 
+    loadQuiz(quizIdx); 
+  });
+  
   document.getElementById("submitQuizBtn").addEventListener("click", () => {
     let ans = document.getElementById("quizAnswerInput").value.trim().toLowerCase();
     let correct = currentQuiz.correct.some(c => ans === c.toLowerCase());
-    if(correct) document.getElementById("quizFeedback").innerHTML = "✅ 正确！ Great job 🎉";
-    else document.getElementById("quizFeedback").innerHTML = `❌ 不正确。正确答案: ${currentQuiz.correct.join(" / ")}`;
+    if(correct) {
+      document.getElementById("quizFeedback").innerHTML = "✅ 正确！ Great job 🎉";
+      document.getElementById("possibleAnswersDisplay").innerHTML = "";
+    } else {
+      document.getElementById("quizFeedback").innerHTML = `❌ 不正确。正确答案: ${currentQuiz.correct.join(" / ")}`;
+      document.getElementById("possibleAnswersDisplay").innerHTML = `📖 提示: ${currentQuiz.hint}`;
+    }
   });
   
   const vowelDiv = document.getElementById("vowelsContainer");
