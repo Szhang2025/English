@@ -4009,6 +4009,18 @@
     a.innerHTML = `<i class="fab fa-youtube"></i><div><strong>${s.name}</strong></div>`;
     songContainer.appendChild(a);
   });
+
+  // 获取单词列表
+  const nounWords = Object.keys(nouns);
+  const verbWords = Object.keys(verbs);
+  const adjWords = Object.keys(adjectives);
+  const prepWords = Object.keys(prepositions);
+  
+  // 更新统计显示
+  document.getElementById("nounCount").innerText = nounWords.length;
+  document.getElementById("verbCount").innerText = verbWords.length;
+  document.getElementById("adjCount").innerText = adjWords.length;
+  document.getElementById("prepCount").innerText = prepWords.length;
   
   updateDisplay();
 
